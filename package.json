@@ -1,0 +1,23 @@
+{
+  "name": "amazon-store",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bamazonCustomer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crashdean/Amazon-Store.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/crashdean/Amazon-Store/issues"
+  },
+  "homepage": "https://github.com/crashdean/Amazon-Store#readme",
+  "dependencies": {
+    "inquirer": "^6.3.1",
+    "node-modules": "^1.0.1"
+  }
+}
