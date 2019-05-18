@@ -61,18 +61,20 @@ function start() {
         }
         // Determine if quantity on hand is enough for purchase
         if (chosenItem.stock_quantity > answer.stockQuantity) {
-          console.log("Quantity on hand is " + chosenItem.stock_quantity);
-          console.log("Your purchase of " + answer.stockQuantity + chosenItem.product_name + " was sucsessful!");
+          var updatedQuantity = chosenItem.stock_quantity - parseInt(answer.stockQuantity)
+          console.log("Up dated stock quantity " + updatedQuantity);
+          console.log("Your purchase of " + answer.stockQuantity +" "+ chosenItem.product_name + " was sucsessful!");
 
           connection.query(
             "UPDATE products SET ? WHERE ?",
             [
               {
-                stock_quantity: chosenItem.stockQuantity
+                stock_quantity: updatedQuantity
               },
               {
                 item_id: chosenItem.item_id
               }
+          
             ],
             function (error) {
               if (error) throw err;
