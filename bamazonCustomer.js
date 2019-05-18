@@ -14,13 +14,11 @@ var connection = mysql.createConnection({
   password: "root",
   database: "amazon_storeDB"
 });
-
 connection.connect(function (err) {
   if (err) {
     console.error('error connecting: ' + err.stack);
     return;
   }
-
   console.log('connected as id ' + connection.threadId);
   start();
 });
@@ -50,8 +48,6 @@ function start() {
           type: "input",
           message: "How many units of the product would you like to buy?",
         }
-
-
       ])
       .then(function (answer) {
         var chosenItem;
@@ -61,12 +57,30 @@ function start() {
             console.log(chosenItem);
 
             // purchaseItem();
-          }   
+          }
         }
+        // Determine if quantity on hand is enough for purchase
         if (chosenItem.stock_quantity > answer.stockQuantity) {
-          console.log("You purchase was sucsessful!");
-        }
-      });
+          console.log("Quantity on hand is " + chosenItem.stock_quantity);
+          console.log("Your purchase of " + answer.stockQuantity + chosenItem.product_name + " was sucsessful!");
+
+          connection.query(
+            "UPDATE products SET ? WHERE ?",
+            [
+              {
+                stock_quantity: chosenItem.stockQuantity
+              },
+              {
+                item_id: chosenItem.item_id
+              }
+            ],
+            function (error) {
+              if (error) throw err;
+            })
+        };
+
+      }
+      )
   }
   )
 }
