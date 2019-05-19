@@ -23,11 +23,17 @@ connection.connect(function (err) {
   start();
 });
 function start() {
-  // query the database for all items being auctioned
+  // query the mysql data base for products
   connection.query("SELECT * FROM products", function (err, results) {
-    //   console.log(results)
     if (err) throw err;
-    // once you have the items, prompt the user for which they'd like to bid on
+    var listItems;
+    for (var i = 0; i < results.length; i++) {
+      if (results[i]) {
+        listItems = results[i];
+        console.log(listItems);
+      }
+    }
+    // Ask the user to choose an item to purchase
     inquirer
       .prompt([
         {
@@ -37,11 +43,11 @@ function start() {
             var choiceArray = [];
             for (var i = 0; i < results.length; i++) {
               choiceArray.push(results[i].item_id);
-              // console.log(choiceArray);
             }
             return choiceArray;
           },
           message: "What product ID would you like to buy?",
+          // Ask th euser to choose an amount to purchase
         },
         {
           name: "stockQuantity",
@@ -49,22 +55,22 @@ function start() {
           message: "How many units of the product would you like to buy?",
         }
       ])
+      // Here we run through the results from the data base to compare it with the item selected
       .then(function (answer) {
         var chosenItem;
         for (var i = 0; i < results.length; i++) {
           if (results[i].item_id === answer.itemId) {
             chosenItem = results[i];
             console.log(chosenItem);
-
-            // purchaseItem();
           }
         }
         // Determine if quantity on hand is enough for purchase
+        // Determine if there is enough of the product to purchase.
+        // Update the stock quantity in the mysql data base
         if (chosenItem.stock_quantity > answer.stockQuantity) {
           var updatedQuantity = chosenItem.stock_quantity - parseInt(answer.stockQuantity)
-          console.log("Up dated stock quantity " + updatedQuantity);
-          console.log("Your purchase of " + answer.stockQuantity +" "+ chosenItem.product_name + " was sucsessful!");
-
+          console.log("Updated stock quantity is " + updatedQuantity);
+          console.log("Your purchase of " + answer.stockQuantity + " " + chosenItem.product_name + " was sucsessful!");
           connection.query(
             "UPDATE products SET ? WHERE ?",
             [
@@ -74,13 +80,11 @@ function start() {
               {
                 item_id: chosenItem.item_id
               }
-          
             ],
             function (error) {
               if (error) throw err;
             })
         };
-
       }
       )
   }
