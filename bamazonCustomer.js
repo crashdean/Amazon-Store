@@ -22,7 +22,27 @@ connection.connect(function (err) {
   console.log('connected as id ' + connection.threadId);
   start();
 });
+
 function start() {
+  inquirer
+    .prompt({
+      name: "purchaseItem",
+      type: "list",
+      message: "Would you like to [Purchase] an product or [Exit] from the store?",
+      choices: ["Purchase", "EXIT"]
+    })
+    .then(function (answer) {
+      // based on their answer, either call the bid or the post functions
+      if (answer.purchaseItem === "Purchase") {
+        purchase();
+      }
+      else {
+        connection.end();
+      }
+    });
+}
+
+function purchase() {
   // query the mysql data base for products
   connection.query("SELECT * FROM products", function (err, results) {
     if (err) throw err;
@@ -55,6 +75,7 @@ function start() {
           message: "How many units of the product would you like to buy?",
         }
       ])
+
       // Here we run through the results from the data base to compare it with the item selected
       .then(function (answer) {
         var chosenItem;
@@ -67,10 +88,13 @@ function start() {
         // Determine if quantity on hand is enough for purchase
         // Determine if there is enough of the product to purchase.
         // Update the stock quantity in the mysql data base
+        // Display the cost of the items selected
         if (chosenItem.stock_quantity > answer.stockQuantity) {
-          var updatedQuantity = chosenItem.stock_quantity - parseInt(answer.stockQuantity)
+          var updatedQuantity = chosenItem.stock_quantity - parseInt(answer.stockQuantity);
+          var updateCost = chosenItem.price * parseInt(answer.stockQuantity);
           console.log("Updated stock quantity is " + updatedQuantity);
           console.log("Your purchase of " + answer.stockQuantity + " " + chosenItem.product_name + " was sucsessful!");
+          console.log("Your cost is $" + answer.stockQuantity * chosenItem.price + " for your " + chosenItem.product_name);
           connection.query(
             "UPDATE products SET ? WHERE ?",
             [
@@ -83,8 +107,12 @@ function start() {
             ],
             function (error) {
               if (error) throw err;
+              start()
             })
-        };
+        }
+        else {
+          console.log("There wasn't enough quantity in stock for your purchase");
+        }
       }
       )
   }
